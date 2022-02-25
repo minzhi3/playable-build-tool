@@ -144,10 +144,7 @@ export class MergeBuilder {
     // system_js
     const system_js_str =
       "<script>\n" + this.readFile(this.system_js_path) + "</script>\n";
-    fs.writeFileSync(path.join(this.rootDest, "middle.js"), system_js_str);
-    fs.writeFileSync(path.join(this.rootDest, "middle1.txt"), html_str);
     html_str = this.simpleReplace(html_str, system_js_match_key, system_js_str);
-    fs.writeFileSync(path.join(this.rootDest, "middle2.txt"), html_str);
 
     // polyfill_js
     const polyfill_str =
@@ -206,7 +203,7 @@ export class MergeBuilder {
 
     // hook
     let hook_str = "<script>\n" + this.readFile(this.hook_path) + "</script>\n";
-    if (adNetwork !== "google") {
+    if (adNetwork === "google") {
       //skip loading mp3
       hook_str = hook_str.replace(
         "oldHook(url, options, onComplete)",
