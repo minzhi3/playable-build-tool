@@ -28,6 +28,7 @@ export const configs: Record<string, IBuildPlugin> = {
             { label: "google", value: "google" },
             { label: "ironsource", value: "ironsource" },
             { label: "mintegral", value: "mintegral" },
+            { label: "unity", value: "unity" },
           ],
         },
       },

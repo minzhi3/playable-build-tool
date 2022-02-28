@@ -68,6 +68,7 @@ export class MergeBuilder {
   dapi_path: string;
   dapi_body_path: string;
   mintegral_path: string;
+  unity_path: string;
 
   applicationJsPath: string;
   constructor(_rootRest: string) {
@@ -93,6 +94,7 @@ export class MergeBuilder {
     this.dapi_body_path = path.join(__dirname, "../static/dapi-body.js");
     this.setting_path = path.join(this.rootDest, "src/settings.json");
     this.mintegral_path = path.join(__dirname, "../static/mintegral.js");
+    this.unity_path = path.join(__dirname, "../static/unity.js");
   }
   readFile(filePath: string) {
     console.log(filePath);
@@ -215,6 +217,10 @@ export class MergeBuilder {
         const dapi_body_str =
           "<script>\n" + this.readFile(this.dapi_body_path) + "</script>\n";
         html_str = html_str.replace(start_match_key, dapi_body_str);
+        break;
+      case "unity":
+        const unity_path = "<script>\n" + this.readFile(this.unity_path) + "</script>\n";
+        html_str = html_str.replace(start_match_key, unity_path);
         break;
       case "applovin":
       case "google":
