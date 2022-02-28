@@ -206,9 +206,9 @@ export class MergeBuilder {
     switch (adNetwork) {
       case "mintegral":
         const mintegral_str =
-          "<script>\nfunction loadBundle(){\n" +
+          "<script>\n" +
           this.readFile(this.mintegral_path) +
-          "}\n</script>\n";
+          "\n</script>\n";
         html_str = html_str.replace(start_match_key, mintegral_str);
         break;
       case "ironsource":
