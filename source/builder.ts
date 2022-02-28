@@ -25,7 +25,9 @@ export const configs: Record<string, IBuildPlugin> = {
           items: [
             { label: "test", value: "test" },
             { label: "applovin", value: "applovin" },
+            { label: "google", value: "google" },
             { label: "ironsource", value: "ironsource" },
+            { label: "mintegral", value: "mintegral" },
           ],
         },
       },

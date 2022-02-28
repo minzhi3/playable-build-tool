@@ -35,11 +35,6 @@ System.constructor.prototype.instantiate = function (url, parentUrl) {
   else return Promise.resolve(existingHook.call(this, url, parentUrl))
 };
 
-function gameStart() {
-  console.log("start")
+function start(){
+  System.import('./index.js').catch(function (err) { console.error(err); })
 }
-
-function gameClose() {
-  console.log("close")
-}
-

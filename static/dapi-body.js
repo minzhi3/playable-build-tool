@@ -6,17 +6,17 @@ window.onload = function(){
 function onReadyCallback(){
   //no need to listen to this event anymore
   dapi.removeEventListener("ready", onReadyCallback);
-    let isAudioEnabled = !!dapi.getAudioVolume();
+  var isAudioEnabled = !!dapi.getAudioVolume();
 
   if(dapi.isViewable()){
-      adVisibleCallback({isViewable: true});
+    adVisibleCallback({isViewable: true});
   }
 
   dapi.addEventListener("viewableChange", adVisibleCallback);
   dapi.addEventListener("adResized", adResizeCallback);
   dapi.addEventListener("audioVolumeChange", audioVolumeChangeCallback);
 }
-
+var screenSize;
 function adVisibleCallback(event){
   console.log("isViewable " + event.isViewable);
   if (event.isViewable){

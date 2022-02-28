@@ -39,7 +39,8 @@ const system_js_match_key = "<!--SYSTEM_JS-->";
 const polyfill_match_key = "<!--POLYFILLS-->";
 const import_map_match_key = "<!--IMPORT_MAP-->";
 const dapi_match_key = "<!--DAPI_HEAD-->";
-const dapi_body_match_key = "<!--DAPI_BODY-->";
+const google_match_key = "<!--GOOGLE_HEAD-->";
+const start_match_key = "<!--START-->";
 const fileByteList = [".png", ".bin", ".mp3"];
 const excludeList = ["/index.js"];
 const base64PreList = new Map<string, string>([
@@ -66,6 +67,7 @@ export class MergeBuilder {
   polyfill_path: string;
   dapi_path: string;
   dapi_body_path: string;
+  mintegral_path: string;
 
   applicationJsPath: string;
   constructor(_rootRest: string) {
@@ -87,9 +89,10 @@ export class MergeBuilder {
     this.system_js_path = path.join(this.rootDest, "src/system.bundle.js");
     this.polyfill_path = path.join(this.rootDest, "src/polyfills.bundle.js");
 
-    this.dapi_path = path.join(this.rootDest, "playable/dapi.js");
-    this.dapi_body_path = path.join(this.rootDest, "playable/dapi-body.js");
+    this.dapi_path = path.join(__dirname, "../static/dapi.js");
+    this.dapi_body_path = path.join(__dirname, "../static/dapi-body.js");
     this.setting_path = path.join(this.rootDest, "src/settings.json");
+    this.mintegral_path = path.join(__dirname, "../static/mintegral.js");
   }
   readFile(filePath: string) {
     console.log(filePath);
@@ -181,25 +184,8 @@ export class MergeBuilder {
       // dapi
       const dapi_str =
         "<script>\n" + this.readFile(this.dapi_path) + "</script>\n";
-      const dapi_body_str =
-        "<script>\n" + this.readFile(this.dapi_body_path) + "</script>\n";
-      html_str = html_str.replace(dapi_match_key, dapi_str);
-      html_str = html_str.replace(dapi_body_match_key, dapi_body_str);
+      html_str = this.simpleReplace(html_str, dapi_match_key, dapi_str);
     }
-    //engine
-
-    const engine_str =
-      "<script>\nfunction loadCC(){\n" +
-      this.readFile(this.engine_path) +
-      "}\n</script>\n";
-    html_str = this.simpleReplace(html_str, engine_match_key, engine_str);
-
-    //bundle
-    const bundle_str =
-      "<script>\nfunction loadBundle(){\n" +
-      this.readFile(this.bundle_path) +
-      "}\n</script>\n";
-    html_str = this.simpleReplace(html_str, bundle_match_key, bundle_str);
 
     // hook
     let hook_str = "<script>\n" + this.readFile(this.hook_path) + "</script>\n";
@@ -209,8 +195,51 @@ export class MergeBuilder {
         "oldHook(url, options, onComplete)",
         "onComplete()"
       );
+      html_str = html_str.replace(
+        google_match_key,
+        '<script type="text/javascript" src="https://tpc.googlesyndication.com/pagead/gadgets/html5/api/exitapi.js"> </script>\n  <meta name="ad.size" content="width=320,height=480">'
+      );
     }
     html_str = html_str.replace(hook_match_key, hook_str);
+
+    //start
+    switch (adNetwork) {
+      case "mintegral":
+        const mintegral_str =
+          "<script>\nfunction loadBundle(){\n" +
+          this.readFile(this.mintegral_path) +
+          "}\n</script>\n";
+        html_str = html_str.replace(start_match_key, mintegral_str);
+        break;
+      case "ironsource":
+        const dapi_body_str =
+          "<script>\n" + this.readFile(this.dapi_body_path) + "</script>\n";
+        html_str = html_str.replace(start_match_key, dapi_body_str);
+        break;
+      case "applovin":
+      case "google":
+      case "test":
+      default:
+        html_str = html_str.replace(
+          start_match_key,
+          '<script>\n  window.addEventListener("DOMContentLoaded", start);\n</script>'
+        );
+        break;
+    }
+
+    //bundle
+    const bundle_str =
+      "<script>\nfunction loadBundle(){\n" +
+      this.readFile(this.bundle_path) +
+      "}\n</script>\n";
+    html_str = this.simpleReplace(html_str, bundle_match_key, bundle_str);
+
+    //engine
+    const engine_str =
+      "<script>\nfunction loadCC(){\n" +
+      this.readFile(this.engine_path) +
+      "}\n</script>\n";
+    html_str = this.simpleReplace(html_str, engine_match_key, engine_str);
 
     // resmap
     const resStr = this.getResMapScript();
