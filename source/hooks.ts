@@ -1,4 +1,4 @@
-import * as fs from "fs-extra";
+import * as fs from "fs";
 import { IBuildTaskOption } from "../@types";
 import { IBuildResult } from "../@types";
 import * as path from "path";
