@@ -10,7 +10,7 @@ function load(name){
     loadCC()
     return true
   }else if (name === "bundle.js"){
-    loadBundle()
+    loadMyBundle()
     return true
   }else {
     return false

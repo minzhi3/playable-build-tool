@@ -143,9 +143,25 @@ function downloadAudio(url, options, onComplete) {
   oldHook(url, options, onComplete)
 }
 
+function downloadCCONB(url, options, onComplete) {
+  downloadArrayBuffer(url, options, function (err, arrayBuffer) {
+    if (err) {
+      onComplete(err);
+      return;
+    }
+    try {
+      var ccon = cc.internal.decodeCCONBinary(new Uint8Array(arrayBuffer));
+      onComplete(null, ccon);
+    } catch (err) {
+      onComplete(err);
+    }
+  });
+}
+
 window.hook = function (cc) {
   console.log('run hook')
   cc.assetManager.downloader.register('.bin', downloadArrayBuffer);
+  cc.assetManager.downloader.register('.cconb', downloadCCONB);
   cc.assetManager.downloader.register('.png', downloadDomImage);
   cc.assetManager.downloader.register('.json', downloadJson);
   cc.assetManager.downloader.register('.js', downloadScript);

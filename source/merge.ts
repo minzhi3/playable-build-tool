@@ -41,12 +41,12 @@ const import_map_match_key = "<!--IMPORT_MAP-->";
 const dapi_match_key = "<!--DAPI_HEAD-->";
 const google_match_key = "<!--GOOGLE_HEAD-->";
 const start_match_key = "<!--START-->";
-const fileByteList = [".png", ".bin", ".mp3"];
 const excludeList = ["/index.js"];
 const base64PreList = new Map<string, string>([
   [".png", "data:image/png;base64,"],
   [".bin", "data:application/octet-stream;base64,"],
   [".mp3", "data:audio/mpeg;base64,"],
+  [".cconb", "data:application/octet-stream;base64,"],
   [".ttf", ""],
 ]);
 export class MergeBuilder {
@@ -208,9 +208,7 @@ export class MergeBuilder {
     switch (adNetwork) {
       case "mintegral":
         const mintegral_str =
-          "<script>\n" +
-          this.readFile(this.mintegral_path) +
-          "\n</script>\n";
+          "<script>\n" + this.readFile(this.mintegral_path) + "\n</script>\n";
         html_str = html_str.replace(start_match_key, mintegral_str);
         break;
       case "ironsource":
@@ -219,7 +217,8 @@ export class MergeBuilder {
         html_str = html_str.replace(start_match_key, dapi_body_str);
         break;
       case "unity":
-        const unity_path = "<script>\n" + this.readFile(this.unity_path) + "</script>\n";
+        const unity_path =
+          "<script>\n" + this.readFile(this.unity_path) + "</script>\n";
         html_str = html_str.replace(start_match_key, unity_path);
         break;
       case "applovin":
@@ -235,16 +234,16 @@ export class MergeBuilder {
 
     //bundle
     const bundle_str =
-      "<script>\nfunction loadBundle(){\n" +
+      "<script>\nfunction loadMyBundle(){\n" +
       this.readFile(this.bundle_path) +
-      "}\n</script>\n";
+      "\n}\n</script>\n";
     html_str = this.simpleReplace(html_str, bundle_match_key, bundle_str);
 
     //engine
     const engine_str =
       "<script>\nfunction loadCC(){\n" +
       this.readFile(this.engine_path) +
-      "}\n</script>\n";
+      "\n}\n</script>\n";
     html_str = this.simpleReplace(html_str, engine_match_key, engine_str);
 
     // resmap
@@ -252,7 +251,7 @@ export class MergeBuilder {
     const cc_index_str =
       "<script>\nfunction loadCCIndex(){\n" +
       this.readFile(this.cc_index_js_path) +
-      "}\n</script>\n";
+      "\n}\n</script>\n";
     const setting_str =
       "<script>window._CCSettings = " +
       this.readFile(this.setting_path) +

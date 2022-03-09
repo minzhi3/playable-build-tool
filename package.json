@@ -2,7 +2,7 @@
     "name": "playable-build-tool",
     "title": "Playable build tool",
     "package_version": 2,
-    "version": "1.0.0",
+    "version": "1.0.1",
     "author": "minzhi",
     "description": "i18n:playable-build-tool.description",
     "contributions": {
