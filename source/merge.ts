@@ -131,16 +131,34 @@ export class MergeBuilder {
     this.getResMap(jsonObj, this.res_path);
     const object = Object.fromEntries(jsonObj);
     console.log(object);
-    const resStr =
-      "<script>\nwindow.resMap = " + JSON.stringify(object) + "</script>\n";
+    const resStr = "window.resMap = " + JSON.stringify(object) + "\n";
     return resStr;
   }
   simpleReplace(targetStr: string, findStr: string, replaceStr: string) {
     const group = targetStr.split(findStr, 2);
     return group[0] + replaceStr + group[1];
   }
+
+  generateScript(filePath: string, content: string, inline = true) {
+    if (inline) {
+      return `<script>\n` + content + `</script>\n`;
+    } else {
+      const formatPathString = path.basename(filePath);
+      const assetsPath = path.join(this.rootDest, "merge-assets");
+      const exists = fs.existsSync(assetsPath);
+      if (!exists) fs.mkdirSync(assetsPath);
+      fs.writeFileSync(path.join(assetsPath, formatPathString), content);
+      return `<script src="merge-assets/${formatPathString}"> </script>\n`;
+    }
+  }
+
   merge(adNetwork: string) {
     let html_str = this.readFile(this.html_path);
+    let isInline = true;
+    //set inline
+    if (adNetwork === "facebook") {
+      isInline = false;
+    }
 
     const style_str =
       "<style>\n" + this.readFile(this.style_path) + "</style>\n";
@@ -223,6 +241,7 @@ export class MergeBuilder {
         break;
       case "applovin":
       case "google":
+      case "facebook":
       case "test":
       default:
         html_str = html_str.replace(
@@ -234,31 +253,38 @@ export class MergeBuilder {
 
     //bundle
     const bundle_str =
-      "<script>\nfunction loadMyBundle(){\n" +
-      this.readFile(this.bundle_path) +
-      "\n}\n</script>\n";
-    html_str = this.simpleReplace(html_str, bundle_match_key, bundle_str);
+      "function loadMyBundle(){\n" + this.readFile(this.bundle_path) + "\n}\n";
+    html_str = this.simpleReplace(
+      html_str,
+      bundle_match_key,
+      this.generateScript(this.bundle_path, bundle_str, isInline)
+    );
 
     //engine
     const engine_str =
-      "<script>\nfunction loadCC(){\n" +
-      this.readFile(this.engine_path) +
-      "\n}\n</script>\n";
-    html_str = this.simpleReplace(html_str, engine_match_key, engine_str);
+      "function loadCC(){\n" + this.readFile(this.engine_path) + "\n}\n";
+    html_str = this.simpleReplace(
+      html_str,
+      engine_match_key,
+      this.generateScript(this.engine_path, engine_str, isInline)
+    );
 
     // resmap
     const resStr = this.getResMapScript();
     const cc_index_str =
-      "<script>\nfunction loadCCIndex(){\n" +
+      "function loadCCIndex(){\n" +
       this.readFile(this.cc_index_js_path) +
-      "\n}\n</script>\n";
+      "\n}\n";
     const setting_str =
-      "<script>window._CCSettings = " +
-      this.readFile(this.setting_path) +
-      "</script>\n";
+      "window._CCSettings = " + this.readFile(this.setting_path) + "\n";
+
     html_str = html_str.replace(
       resmap_match_key,
-      resStr + "\n" + cc_index_str + setting_str
+      this.generateScript(
+        "res-map.js",
+        resStr + "\n" + cc_index_str + setting_str,
+        isInline
+      )
     );
     fs.writeFileSync(this.output_path, html_str);
   }
