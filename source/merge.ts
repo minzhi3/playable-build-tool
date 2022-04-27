@@ -69,6 +69,7 @@ export class MergeBuilder {
   dapi_body_path: string;
   mintegral_path: string;
   unity_path: string;
+  facebook_xhr_path: string;
 
   applicationJsPath: string;
   constructor(_rootRest: string) {
@@ -95,6 +96,7 @@ export class MergeBuilder {
     this.setting_path = path.join(this.rootDest, "src/settings.json");
     this.mintegral_path = path.join(__dirname, "../static/mintegral.js");
     this.unity_path = path.join(__dirname, "../static/unity.js");
+    this.facebook_xhr_path = path.join(__dirname, "./fb-xmlhttprequest.js");
   }
   readFile(filePath: string) {
     console.log(filePath);
@@ -261,13 +263,30 @@ export class MergeBuilder {
     );
 
     //engine
-    const engine_str =
+    let engine_str =
       "function loadCC(){\n" + this.readFile(this.engine_path) + "\n}\n";
-    html_str = this.simpleReplace(
-      html_str,
-      engine_match_key,
-      this.generateScript(this.engine_path, engine_str, isInline)
+    //for issue in facebook audio
+    if (adNetwork === "facebook") {
+      const index = engine_str.lastIndexOf("XMLHttpRequest");
+      const content1 = engine_str.substring(0, index);
+      const content2 = engine_str.substring(index);
+      engine_str = content1 + "FB" + content2;
+    }
+    let engine_content = this.generateScript(
+      this.engine_path,
+      engine_str,
+      isInline
     );
+    //for issue in facebook audio
+    if (adNetwork === "facebook") {
+      const fb_content = this.generateScript(
+        this.facebook_xhr_path,
+        this.readFile(this.facebook_xhr_path),
+        isInline
+      );
+      engine_content = fb_content + "\n" + engine_content;
+    }
+    html_str = this.simpleReplace(html_str, engine_match_key, engine_content);
 
     // resmap
     const resStr = this.getResMapScript();
