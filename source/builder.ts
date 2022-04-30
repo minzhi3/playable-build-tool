@@ -8,17 +8,25 @@ export const configs: Record<string, IBuildPlugin> = {
   "web-mobile": {
     hooks: "./hooks",
     options: {
-      needMerge: {
-        label: "need merge",
-        description: "merge to a single html file",
+      isPlayable: {
+        label: "i18n:playable-build-tool.isPlayable.label",
+        description: "i18n:playable-build-tool.isPlayable.description",
+        default: "false",
+        render: {
+          ui: "ui-checkbox",
+        },
+      },
+      splitJs: {
+        label: "i18n:playable-build-tool.splitJs.label",
+        description: "i18n:playable-build-tool.splitJs.description",
         default: "false",
         render: {
           ui: "ui-checkbox",
         },
       },
       adNetwork: {
-        label: "ad network",
-        description: "input ad network",
+        label: "i18n:playable-build-tool.adNetwork.label",
+        description: "i18n:playable-build-tool.adNetwork.description",
         default: "test",
         render: {
           ui: "ui-select",

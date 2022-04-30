@@ -56,7 +56,7 @@ const base64PreList = new Map<string, string>([
 export class MergeBuilder {
   rootDest: string;
   html_path: string;
-  output_path: string;
+  output_folder: string;
   wrapper_path: string;
   setting_path: string;
   application_js_path: string;
@@ -83,7 +83,7 @@ export class MergeBuilder {
     this.wrapper_path = path.join(__dirname, "../static/wrapper.js");
 
     this.html_path = path.join(__dirname, "../static/index.html");
-    this.output_path = path.join(this.rootDest, "merge.html");
+    this.output_folder = path.join(this.rootDest, "playable");
 
     this.cc_index_js_path = path.join(this.rootDest, "assets/main/index.js");
     this.engine_path = path.join(this.rootDest, "cocos-js/cc.js");
@@ -145,12 +145,12 @@ export class MergeBuilder {
     return group[0] + replaceStr + group[1];
   }
 
-  generateScript(filePath: string, content: string, inline = true) {
-    if (inline) {
+  generateScript(filePath: string, content: string, splitJs = false) {
+    if (!splitJs) {
       return `<script>\n` + content + `</script>\n`;
     } else {
       const formatPathString = path.basename(filePath);
-      const assetsPath = path.join(this.rootDest, "merge-assets");
+      const assetsPath = path.join(this.output_folder, "merge-assets");
       const exists = fs.existsSync(assetsPath);
       if (!exists) fs.mkdirSync(assetsPath);
       fs.writeFileSync(path.join(assetsPath, formatPathString), content);
@@ -158,13 +158,12 @@ export class MergeBuilder {
     }
   }
 
-  merge(adNetwork: string) {
+  merge(adNetwork: string, splitJs: boolean) {
+    //create folder
+    if (!fs.existsSync(this.output_folder)) fs.mkdirSync(this.output_folder);
+
     let html_str = this.readFile(this.html_path);
-    let isInline = true;
     //set inline
-    if (adNetwork === "facebook") {
-      isInline = false;
-    }
 
     const style_str =
       "<style>\n" + this.readFile(this.style_path) + "</style>\n";
@@ -263,7 +262,7 @@ export class MergeBuilder {
     html_str = this.simpleReplace(
       html_str,
       bundle_match_key,
-      this.generateScript(this.bundle_path, bundle_str, isInline)
+      this.generateScript(this.bundle_path, bundle_str, splitJs)
     );
 
     //engine
@@ -279,14 +278,14 @@ export class MergeBuilder {
     let engine_content = this.generateScript(
       this.engine_path,
       engine_str,
-      isInline
+      splitJs
     );
     //for issue in facebook audio
     if (adNetwork === "facebook") {
       const fb_content = this.generateScript(
         this.facebook_xhr_path,
         this.readFile(this.facebook_xhr_path),
-        isInline
+        splitJs
       );
       engine_content = fb_content + "\n" + engine_content;
     }
@@ -306,9 +305,9 @@ export class MergeBuilder {
       this.generateScript(
         "res-map.js",
         resStr + "\n" + cc_index_str + setting_str,
-        isInline
+        splitJs
       )
     );
-    fs.writeFileSync(this.output_path, html_str);
+    fs.writeFileSync(path.join(this.output_folder, "index.html"), html_str);
   }
 }
