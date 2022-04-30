@@ -163,6 +163,8 @@ window.hook = function (cc) {
   cc.assetManager.downloader.register('.bin', downloadArrayBuffer);
   cc.assetManager.downloader.register('.cconb', downloadCCONB);
   cc.assetManager.downloader.register('.png', downloadDomImage);
+  cc.assetManager.downloader.register('.jpg', downloadDomImage);
+  cc.assetManager.downloader.register('.gif', downloadDomImage);
   cc.assetManager.downloader.register('.json', downloadJson);
   cc.assetManager.downloader.register('.js', downloadScript);
   cc.assetManager.downloader.register('.plist', downloadText);
@@ -170,4 +172,6 @@ window.hook = function (cc) {
   if (!oldHook)
     oldHook = cc.assetManager.downloader._downloaders[".mp3"]
   cc.assetManager.downloader.register('.mp3', downloadAudio);
+  cc.assetManager.downloader.register('.wav', downloadAudio);
+  cc.assetManager.downloader.register('.ogg', downloadAudio);
 }

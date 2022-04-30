@@ -44,8 +44,12 @@ const start_match_key = "<!--START-->";
 const excludeList = ["/index.js"];
 const base64PreList = new Map<string, string>([
   [".png", "data:image/png;base64,"],
-  [".bin", "data:application/octet-stream;base64,"],
+  [".jpg", "data:image/jpeg;base64,"],
+  [".gif", "data:image/gif;base64,"],
   [".mp3", "data:audio/mpeg;base64,"],
+  [".wav", "data:audio/wav;base64,"],
+  [".ogg", "data:audio/ogg;base64,"],
+  [".bin", "data:application/octet-stream;base64,"],
   [".cconb", "data:application/octet-stream;base64,"],
   [".ttf", ""],
 ]);
