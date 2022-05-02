@@ -1,34 +1,6 @@
 import * as path from "path";
 import * as fs from "fs";
-
-/*class ContentInfo {
-  paths: string[];
-  contentList: string[];
-  postProcess: Function[];
-  key: string;
-  constructor(_key = "") {
-    this.key = _key;
-  }
-  async readContent(){
-    const promiseList = this.paths.map(item => {
-      return new Promise((resolve, reject) => {
-        fs.readFile(item, "utf8", (data) =>{
-          this.
-        })
-      })
-    })
-    this.contentList = await Promise.all(promiseList)
-  }
-  addPath(_path:string, _postProcess: () => {}){
-    this.paths.push(_path)
-    this.postProcess.push(_postProcess)
-  }
-  get outputString(){
-    return this.contentList.reduce((prev, current) =>
-      prev.concat(current)
-    )
-  }
-}*/
+import JSZip from "jszip";
 
 const engine_match_key = "<!--ENGINE-->";
 const bundle_match_key = "<!--BUNDLE-->";
@@ -158,12 +130,60 @@ export class MergeBuilder {
     }
   }
 
-  merge(adNetwork: string, splitJs: boolean) {
+  async archive(outputPath: string) {
+    const zipFile = new JSZip();
+    const getAllFiles = (
+      dirPath: string,
+      arrayOfFiles?: string[]
+    ): string[] => {
+      const files = fs.readdirSync(dirPath);
+
+      arrayOfFiles = arrayOfFiles || [];
+
+      files.forEach(function (file) {
+        if (fs.statSync(dirPath + "/" + file).isDirectory()) {
+          arrayOfFiles = getAllFiles(path.join(dirPath, file), arrayOfFiles);
+        } else {
+          arrayOfFiles.push(path.join(dirPath, file));
+        }
+      });
+
+      return arrayOfFiles;
+    };
+    const fileList = getAllFiles(outputPath);
+    fileList.forEach((filePath) => {
+      const content = fs.readFileSync(filePath);
+      const relativePath = path.relative(this.output_folder, filePath);
+      zipFile.file(relativePath, content);
+    });
+    const content = await zipFile.generateAsync({
+      type: "nodebuffer", // 压缩类型
+      compression: "DEFLATE", // 压缩算法
+      compressionOptions: {
+        // 压缩级别
+        level: 9,
+      },
+    });
+    await fs.promises.writeFile(
+      path.join(this.output_folder, "merge.zip"),
+      content
+    );
+  }
+
+  async merge(adNetwork: string) {
     //create folder
     if (!fs.existsSync(this.output_folder)) fs.mkdirSync(this.output_folder);
 
     let html_str = this.readFile(this.html_path);
     //set inline
+    let splitJs = false;
+    if (
+      adNetwork === "facebook" ||
+      adNetwork === "mintegral" ||
+      adNetwork == "google"
+    ) {
+      splitJs = true;
+    }
 
     const style_str =
       "<style>\n" + this.readFile(this.style_path) + "</style>\n";
@@ -308,6 +328,18 @@ export class MergeBuilder {
         splitJs
       )
     );
-    fs.writeFileSync(path.join(this.output_folder, "index.html"), html_str);
+    await fs.promises.writeFile(
+      path.join(this.output_folder, "index.html"),
+      html_str
+    );
+    console.log("writeFile");
+    if (
+      adNetwork === "facebook" ||
+      adNetwork === "mintegral" ||
+      adNetwork === "google"
+    ) {
+      await this.archive(this.output_folder);
+      console.log("archive");
+    }
   }
 }

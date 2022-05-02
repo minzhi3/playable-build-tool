@@ -16,14 +16,14 @@ export const configs: Record<string, IBuildPlugin> = {
           ui: "ui-checkbox",
         },
       },
-      splitJs: {
+      /*splitJs: {
         label: "i18n:playable-build-tool.splitJs.label",
         description: "i18n:playable-build-tool.splitJs.description",
         default: "false",
         render: {
           ui: "ui-checkbox",
         },
-      },
+      },*/
       adNetwork: {
         label: "i18n:playable-build-tool.adNetwork.label",
         description: "i18n:playable-build-tool.adNetwork.description",

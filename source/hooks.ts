@@ -51,12 +51,12 @@ export async function onAfterBuild(
   const htmlTemplate = path.join(staticDir, "index.html");
   const htmlStr = fs.readFileSync(htmlTemplate, "utf8");
   htmlStr.substring(0, 100);
-  const { adNetwork, needMerge, splitJs } = options.packages[PACKAGE_NAME];
+  const { adNetwork, needMerge } = options.packages[PACKAGE_NAME];
   log(needMerge);
   log(result);
   if (needMerge === true) {
     const mergeTool = new MergeBuilder(result.paths.dir);
-    mergeTool.merge(adNetwork, splitJs);
+    await mergeTool.merge(adNetwork);
   }
 
   //fs.readFileSync()
