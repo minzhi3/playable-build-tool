@@ -2,7 +2,7 @@
     "name": "playable-build-tool",
     "title": "Playable build tool",
     "package_version": 2,
-    "version": "1.1.0",
+    "version": "1.1.1",
     "author": "minzhi",
     "description": "i18n:playable-build-tool.description",
     "contributions": {
@@ -15,6 +15,7 @@
         "@types/fs-extra": "^5.0.4",
         "@types/node": "^14.17.0",
         "electron": "^17.0.1",
+        "jszip": "^3.9.1",
         "typescript": "^4.5.5"
     }
 }
