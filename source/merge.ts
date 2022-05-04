@@ -1,6 +1,7 @@
 import * as path from "path";
 import * as fs from "fs";
 import JSZip from "jszip";
+import ejs from "ejs";
 
 const engine_match_key = "<!--ENGINE-->";
 const bundle_match_key = "<!--BUNDLE-->";
@@ -48,6 +49,7 @@ export class MergeBuilder {
   facebook_xhr_path: string;
 
   applicationJsPath: string;
+  template_path: string;
   constructor(_rootRest: string) {
     this.rootDest = _rootRest;
     this.application_js_path = path.join(this.rootDest, "application.js");
@@ -73,6 +75,7 @@ export class MergeBuilder {
     this.mintegral_path = path.join(__dirname, "../static/mintegral.js");
     this.unity_path = path.join(__dirname, "../static/unity.js");
     this.facebook_xhr_path = path.join(__dirname, "./fb-xmlhttprequest.js");
+    this.template_path = path.join(__dirname, "../static/templates");
   }
   readFile(filePath: string) {
     console.log(filePath);
@@ -290,10 +293,10 @@ export class MergeBuilder {
       "function loadCC(){\n" + this.readFile(this.engine_path) + "\n}\n";
     //for issue in facebook audio
     if (adNetwork === "facebook") {
-      const index = engine_str.lastIndexOf("XMLHttpRequest");
-      const content1 = engine_str.substring(0, index);
-      const content2 = engine_str.substring(index);
-      engine_str = content1 + "FB" + content2;
+      engine_str = engine_str.replaceAll(
+        "new XMLHttpRequest",
+        "new FBXMLHttpRequest"
+      );
     }
     let engine_content = this.generateScript(
       this.engine_path,
@@ -328,9 +331,32 @@ export class MergeBuilder {
         splitJs
       )
     );
+    const ejsData = {
+      styleTag: style_str,
+      body: {
+        systemJs: system_js_str,
+        polyfills: polyfill_str,
+        importMap:
+          '<script type="systemjs-importmap">{"imports": {"cc": "./cocos-js/cc.js"}}</script>',
+        resourceMap: this.generateScript(
+          "res-map.js",
+          resStr + "\n" + cc_index_str + setting_str,
+          splitJs
+        ),
+        engine: engine_content,
+        downloadHook: hook_str,
+        bundle: this.generateScript(this.bundle_path, bundle_str, splitJs),
+        entryPoint: entrypoint_str,
+      },
+    };
+    const content = await ejs.renderFile(
+      path.join(this.template_path, "index.ejs"),
+      ejsData,
+      {}
+    );
     await fs.promises.writeFile(
       path.join(this.output_folder, "index.html"),
-      html_str
+      content
     );
     console.log("writeFile");
     if (

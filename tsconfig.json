@@ -6,7 +6,7 @@
         "outDir": "./dist",
         "rootDir": "./source",
         "allowJs": true,
-        "lib": ["dom", "es2019"],
+        "lib": ["dom", "es2021"],
         "esModuleInterop": true
     },
     "exclude": ["./dist"],
