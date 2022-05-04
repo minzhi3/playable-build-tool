@@ -1,14 +1,16 @@
 class FBXMLHttpRequest {
   public responseType: string;
+  public withCredentials: boolean;
   public onload: Function;
   public onerror: Function;
   public ontimeout: Function;
   public onabort: Function;
+  public onprogress: Function;
   method: string;
   url: string;
   async: boolean;
   private _status: number;
-  private _response: ArrayBuffer;
+  private _response: ArrayBuffer | Blob;
   get status() {
     return this._status;
   }
@@ -20,19 +22,25 @@ class FBXMLHttpRequest {
     this.url = _url;
     this.async = _async;
   }
+  overrideMimeType(mime: string) {}
+  setRequestHeader(name: string, value: string) {}
   async send(body: any) {
-    return window
-      .fetch(this.url)
-      .then((response) => {
+    try {
+      const response = await window.fetch(this.url);
+      if (!response.ok) this.onerror(response.statusText);
+      else {
         this._status = response.status;
-        return response.blob();
-      })
-      .then((blob) => {
-        return blob.arrayBuffer();
-      })
-      .then((arrayBuffer) => {
-        this._response = arrayBuffer;
+        const blob = await response.blob();
+        if (this.responseType === "blob") {
+          this._response = blob;
+        } else {
+          const arrayBuffer = await blob.arrayBuffer();
+          this._response = arrayBuffer;
+        }
         this.onload();
-      });
+      }
+    } catch (e) {
+      this.onerror(e);
+    }
   }
 }
