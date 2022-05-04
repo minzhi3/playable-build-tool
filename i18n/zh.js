@@ -1,5 +1,6 @@
 module.exports = {
-  description: "HTML5可玩广告构建",
+  title: "HTML5广告构建器",
+  description: "生成HTML5可玩广告格式",
   isPlayable: {
     label: "输出为可玩广告格式",
     description: "是否输出可玩广告"

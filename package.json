@@ -1,6 +1,6 @@
 {
     "name": "playable-build-tool",
-    "title": "Playable build tool",
+    "title": "i18n:playable-build-tool.title",
     "package_version": 2,
     "version": "1.2.0",
     "author": "minzhi",

@@ -1,5 +1,6 @@
 module.exports = {
-  description: "Playable build tool",
+  title: "Playable Ads build tool",
+  description: "Generate HTML5 playable ads",
   isPlayable: {
     label: "Output to playable format",
     description: "Build playable ads for an Ad networks"
