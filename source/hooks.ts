@@ -1,7 +1,5 @@
-import * as fs from "fs";
 import { IBuildTaskOption } from "../@types";
 import { IBuildResult } from "../@types";
-import * as path from "path";
 import { MergeBuilder } from "./merge";
 
 interface IOptions {
@@ -48,8 +46,8 @@ export async function onAfterBuild(
   result: IBuildResult
 ) {
   log(options.name);
-  const { adNetwork, needMerge } = options.packages[PACKAGE_NAME];
-  if (needMerge === true) {
+  const { adNetwork, isPlayable } = options.packages[PACKAGE_NAME];
+  if (isPlayable === true) {
     const mergeTool = new MergeBuilder(result.paths.dir, options.name);
     await mergeTool.merge(adNetwork);
   }
