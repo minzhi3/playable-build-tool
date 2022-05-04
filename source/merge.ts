@@ -191,10 +191,13 @@ export class MergeBuilder {
       "requestSettings();",
       "resolve();"
     );
-    application_str = application_str.replace(
-      ".concat(launchScene));",
-      ".concat(launchScene));\nif (onLoadComplete) onLoadComplete();"
-    );
+    //for mintegral loading scene
+    if (adNetwork === "mintegral") {
+      application_str = application_str.replace(
+        ".concat(launchScene));",
+        ".concat(launchScene));\nif (onLoadComplete) onLoadComplete();"
+      );
+    }
     const index_str =
       "function loadIndex(){\n" + this.readFile(this.index_js_path) + "}\n";
     const entrypoint_str =
