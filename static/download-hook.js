@@ -135,12 +135,19 @@ function downloadBundle(nameOrUrl, options, onComplete) {
 }
 var oldHook
 function downloadAudio(url, options, onComplete) {
+  var ext
   if (url) {
     var path = url.substring(11)
+    ext = url.slice(-4)
     url = window.resMap[path]
   }
   //console.log(url,options)
-  oldHook(url, options, onComplete)
+  if (ext) {
+    console.log(oldHook,ext)
+    oldHook[ext](url, options, onComplete)
+  }
+  else
+    onComplete()
 }
 
 function downloadCCONB(url, options, onComplete) {
@@ -170,7 +177,11 @@ window.hook = function (cc) {
   cc.assetManager.downloader.register('.plist', downloadText);
   cc.assetManager.downloader.register('bundle', downloadBundle);
   if (!oldHook)
-    oldHook = cc.assetManager.downloader._downloaders[".mp3"]
+    oldHook = {
+      ".mp3": cc.assetManager.downloader._downloaders[".mp3"],
+      ".wav": cc.assetManager.downloader._downloaders[".wav"],
+      ".ogg": cc.assetManager.downloader._downloaders[".ogg"]
+    }
   cc.assetManager.downloader.register('.mp3', downloadAudio);
   cc.assetManager.downloader.register('.wav', downloadAudio);
   cc.assetManager.downloader.register('.ogg', downloadAudio);
