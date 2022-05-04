@@ -47,15 +47,10 @@ export async function onAfterBuild(
   options: ITaskOptions,
   result: IBuildResult
 ) {
-  const staticDir = path.join(__dirname, "../static");
-  const htmlTemplate = path.join(staticDir, "index.html");
-  const htmlStr = fs.readFileSync(htmlTemplate, "utf8");
-  htmlStr.substring(0, 100);
+  log(options.name);
   const { adNetwork, needMerge } = options.packages[PACKAGE_NAME];
-  log(needMerge);
-  log(result);
   if (needMerge === true) {
-    const mergeTool = new MergeBuilder(result.paths.dir);
+    const mergeTool = new MergeBuilder(result.paths.dir, options.name);
     await mergeTool.merge(adNetwork);
   }
 

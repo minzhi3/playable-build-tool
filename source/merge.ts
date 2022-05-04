@@ -3,18 +3,6 @@ import * as fs from "fs";
 import JSZip from "jszip";
 import ejs from "ejs";
 
-const engine_match_key = "<!--ENGINE-->";
-const bundle_match_key = "<!--BUNDLE-->";
-const entrypoint_match_key = "<!--ENTRYPOINT-->";
-const resmap_match_key = "<!--RESMAP-->";
-const hook_match_key = "<!--DOWNLOAD_HOOK-->";
-const system_js_match_key = "<!--SYSTEM_JS-->";
-const polyfill_match_key = "<!--POLYFILLS-->";
-const import_map_match_key = "<!--IMPORT_MAP-->";
-const dapi_match_key = "<!--DAPI_HEAD-->";
-const google_match_key = "<!--GOOGLE_HEAD-->";
-const start_match_key = "<!--START-->";
-const excludeList = ["/index.js"];
 const base64PreList = new Map<string, string>([
   [".png", "data:image/png;base64,"],
   [".jpg", "data:image/jpeg;base64,"],
@@ -42,16 +30,14 @@ export class MergeBuilder {
   res_path: string;
   system_js_path: string;
   polyfill_path: string;
-  dapi_path: string;
-  dapi_body_path: string;
-  mintegral_path: string;
-  unity_path: string;
   facebook_xhr_path: string;
+  project_name: string;
 
   applicationJsPath: string;
   template_path: string;
-  constructor(_rootRest: string) {
+  constructor(_rootRest: string, project_name: string) {
     this.rootDest = _rootRest;
+    this.project_name = project_name;
     this.application_js_path = path.join(this.rootDest, "application.js");
     this.index_js_path = path.join(this.rootDest, "index.js");
     this.wrapper_path = path.join(__dirname, "../static/wrapper.js");
@@ -69,16 +55,11 @@ export class MergeBuilder {
     this.system_js_path = path.join(this.rootDest, "src/system.bundle.js");
     this.polyfill_path = path.join(this.rootDest, "src/polyfills.bundle.js");
 
-    this.dapi_path = path.join(__dirname, "../static/dapi.js");
-    this.dapi_body_path = path.join(__dirname, "../static/dapi-body.js");
     this.setting_path = path.join(this.rootDest, "src/settings.json");
-    this.mintegral_path = path.join(__dirname, "../static/mintegral.js");
-    this.unity_path = path.join(__dirname, "../static/unity.js");
     this.facebook_xhr_path = path.join(__dirname, "./fb-xmlhttprequest.js");
     this.template_path = path.join(__dirname, "../static/templates");
   }
   readFile(filePath: string) {
-    console.log(filePath);
     if (!filePath) return "";
     const extName = path.extname(filePath);
     let ret: string;
@@ -160,15 +141,14 @@ export class MergeBuilder {
       zipFile.file(relativePath, content);
     });
     const content = await zipFile.generateAsync({
-      type: "nodebuffer", // 压缩类型
-      compression: "DEFLATE", // 压缩算法
+      type: "nodebuffer",
+      compression: "DEFLATE",
       compressionOptions: {
-        // 压缩级别
         level: 9,
       },
     });
     await fs.promises.writeFile(
-      path.join(this.output_folder, "merge.zip"),
+      path.join(this.output_folder, `${this.project_name}.zip`),
       content
     );
   }
@@ -177,7 +157,6 @@ export class MergeBuilder {
     //create folder
     if (!fs.existsSync(this.output_folder)) fs.mkdirSync(this.output_folder);
 
-    let html_str = this.readFile(this.html_path);
     //set inline
     let splitJs = false;
     if (
@@ -190,22 +169,12 @@ export class MergeBuilder {
 
     const style_str =
       "<style>\n" + this.readFile(this.style_path) + "</style>\n";
-    html_str = html_str.replace("<!--STYLE-->", style_str);
-
     // system_js
     const system_js_str =
       "<script>\n" + this.readFile(this.system_js_path) + "</script>\n";
-    html_str = this.simpleReplace(html_str, system_js_match_key, system_js_str);
-
     // polyfill_js
     const polyfill_str =
       "<script>\n" + this.readFile(this.polyfill_path) + "</script>\n";
-    html_str = html_str.replace(polyfill_match_key, polyfill_str);
-
-    html_str = html_str.replace(
-      import_map_match_key,
-      '<script type="systemjs-importmap">{"imports": {"cc": "./cocos-js/cc.js"}}</script>'
-    );
 
     let wrapper_str = this.readFile(this.wrapper_path);
 
@@ -222,71 +191,28 @@ export class MergeBuilder {
       "requestSettings();",
       "resolve();"
     );
+    application_str = application_str.replace(
+      ".concat(launchScene));",
+      ".concat(launchScene));\nif (onLoadComplete) onLoadComplete();"
+    );
     const index_str =
       "function loadIndex(){\n" + this.readFile(this.index_js_path) + "}\n";
     const entrypoint_str =
       "<script>\n" + application_str + index_str + wrapper_str + "</script>\n";
-    html_str = html_str.replace(entrypoint_match_key, entrypoint_str);
-
-    if (adNetwork === "ironsource") {
-      // dapi
-      const dapi_str =
-        "<script>\n" + this.readFile(this.dapi_path) + "</script>\n";
-      html_str = this.simpleReplace(html_str, dapi_match_key, dapi_str);
-    }
 
     // hook
     let hook_str = "<script>\n" + this.readFile(this.hook_path) + "</script>\n";
     if (adNetwork === "google") {
       //skip loading mp3
       hook_str = hook_str.replace(
-        "oldHook(url, options, onComplete)",
+        "oldHook[ext](url, options, onComplete)",
         "onComplete()"
       );
-      html_str = html_str.replace(
-        google_match_key,
-        '<script type="text/javascript" src="https://tpc.googlesyndication.com/pagead/gadgets/html5/api/exitapi.js"> </script>\n  <meta name="ad.size" content="width=320,height=480">'
-      );
-    }
-    html_str = html_str.replace(hook_match_key, hook_str);
-
-    //start
-    switch (adNetwork) {
-      case "mintegral":
-        const mintegral_str =
-          "<script>\n" + this.readFile(this.mintegral_path) + "\n</script>\n";
-        html_str = html_str.replace(start_match_key, mintegral_str);
-        break;
-      case "ironsource":
-        const dapi_body_str =
-          "<script>\n" + this.readFile(this.dapi_body_path) + "</script>\n";
-        html_str = html_str.replace(start_match_key, dapi_body_str);
-        break;
-      case "unity":
-        const unity_path =
-          "<script>\n" + this.readFile(this.unity_path) + "</script>\n";
-        html_str = html_str.replace(start_match_key, unity_path);
-        break;
-      case "applovin":
-      case "google":
-      case "facebook":
-      case "test":
-      default:
-        html_str = html_str.replace(
-          start_match_key,
-          '<script>\n  window.addEventListener("DOMContentLoaded", start);\n</script>'
-        );
-        break;
     }
 
     //bundle
     const bundle_str =
       "function loadMyBundle(){\n" + this.readFile(this.bundle_path) + "\n}\n";
-    html_str = this.simpleReplace(
-      html_str,
-      bundle_match_key,
-      this.generateScript(this.bundle_path, bundle_str, splitJs)
-    );
 
     //engine
     let engine_str =
@@ -312,8 +238,6 @@ export class MergeBuilder {
       );
       engine_content = fb_content + "\n" + engine_content;
     }
-    html_str = this.simpleReplace(html_str, engine_match_key, engine_content);
-
     // resmap
     const resStr = this.getResMapScript();
     const cc_index_str =
@@ -323,14 +247,6 @@ export class MergeBuilder {
     const setting_str =
       "window._CCSettings = " + this.readFile(this.setting_path) + "\n";
 
-    html_str = html_str.replace(
-      resmap_match_key,
-      this.generateScript(
-        "res-map.js",
-        resStr + "\n" + cc_index_str + setting_str,
-        splitJs
-      )
-    );
     const ejsData = {
       styleTag: style_str,
       body: {
@@ -350,20 +266,20 @@ export class MergeBuilder {
       },
     };
     const content = await ejs.renderFile(
-      path.join(this.template_path, "index.ejs"),
+      path.join(this.template_path, `${adNetwork}.ejs`),
       ejsData,
       {}
     );
+    let htmlName = "index.html";
+    if (!splitJs) {
+      htmlName = `${this.project_name}.html`;
+    }
     await fs.promises.writeFile(
-      path.join(this.output_folder, "index.html"),
+      path.join(this.output_folder, htmlName),
       content
     );
     console.log("writeFile");
-    if (
-      adNetwork === "facebook" ||
-      adNetwork === "mintegral" ||
-      adNetwork === "google"
-    ) {
+    if (splitJs) {
       await this.archive(this.output_folder);
       console.log("archive");
     }
