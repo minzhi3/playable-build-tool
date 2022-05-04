@@ -143,7 +143,6 @@ function downloadAudio(url, options, onComplete) {
   }
   //console.log(url,options)
   if (ext) {
-    console.log(oldHook,ext)
     oldHook[ext](url, options, onComplete)
   }
   else
