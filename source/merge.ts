@@ -83,7 +83,10 @@ export class MergeBuilder {
       if (file.isDirectory()) {
         this.getResMap(jsonMap, absPath);
       } else {
-        const relativePath = absPath.replace(this.res_path, "/");
+        let relativePath = absPath.replace(this.res_path, "/");
+        if (process.platform == "win32") {
+          relativePath = relativePath.replaceAll("\\", "/");
+        }
         jsonMap.set(relativePath, this.readFile(absPath));
       }
     }
