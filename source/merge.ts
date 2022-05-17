@@ -2,6 +2,7 @@ import * as path from "path";
 import * as fs from "fs";
 import JSZip from "jszip";
 import ejs from "ejs";
+import pako from "pako";
 
 const base64PreList = new Map<string, string>([
   [".png", "data:image/png;base64,"],
@@ -32,6 +33,7 @@ export class MergeBuilder {
   polyfill_path: string;
   facebook_xhr_path: string;
   project_name: string;
+  pako_path: string;
 
   applicationJsPath: string;
   template_path: string;
@@ -58,16 +60,24 @@ export class MergeBuilder {
     this.setting_path = path.join(this.rootDest, "src/settings.json");
     this.facebook_xhr_path = path.join(__dirname, "./fb-xmlhttprequest.js");
     this.template_path = path.join(__dirname, "../static/templates");
+    this.pako_path = path.join(__dirname, "../static/pako.js");
   }
-  readFile(filePath: string) {
+  readFile(filePath: string, gzip = false) {
     if (!filePath) return "";
     const extName = path.extname(filePath);
     let ret: string;
     if (base64PreList.has(extName)) {
       const buffer = fs.readFileSync(filePath);
-      const base64 = Buffer.from(buffer).toString("base64");
       const preName = base64PreList.get(extName);
-      ret = preName + base64;
+      if (extName === ".cconb" || extName === ".bin") gzip = true;
+      if (gzip) {
+        const gzData = pako.deflate(buffer);
+        const base64zip = Buffer.from(gzData).toString("base64");
+        ret = preName + base64zip;
+      } else {
+        const base64 = Buffer.from(buffer).toString("base64");
+        ret = preName + base64;
+      }
     } else if (extName === "") {
       ret = "";
     } else {
@@ -172,6 +182,8 @@ export class MergeBuilder {
 
     const style_str =
       "<style>\n" + this.readFile(this.style_path) + "</style>\n";
+    const pako_str =
+      "<script>\n" + this.readFile(this.pako_path) + "</script>\n";
     // system_js
     const system_js_str =
       "<script>\n" + this.readFile(this.system_js_path) + "</script>\n";
@@ -252,9 +264,12 @@ export class MergeBuilder {
       "\n}\n";
     const setting_str =
       "window._CCSettings = " + this.readFile(this.setting_path) + "\n";
-
+    console.log(pako_str);
     const ejsData = {
-      styleTag: style_str,
+      head: {
+        styleTag: style_str,
+        pakoJs: pako_str,
+      },
       body: {
         systemJs: system_js_str,
         polyfills: polyfill_str,

@@ -31,7 +31,12 @@ function downloadFile(url, options, onProgress, onComplete) {
   var blob = dataURItoBlob(base64)
   if (options.xhrResponseType === 'arraybuffer')
     blob.arrayBuffer().then(result => {
-      onComplete(null, result)
+      if (window.isZip) {        
+        const uncompressed = pako.inflate(result)
+        onComplete(null, uncompressed)
+      } else {
+        onComplete(null, result)
+      }
     })
   else if (options.xhrResponseType === 'blob')
     onComplete(null, blob)
