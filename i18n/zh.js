@@ -12,5 +12,9 @@ module.exports = {
   splitJs: {
     label: "分离保存较大的javascript文件",
     description: "不在index.html中内联较大的javascript文件，以减小index.html的体积"
+  },
+  gzip: {
+    label: "Gzip压缩",
+    description: "使用Gzip压缩模型文件（.bin和.cconb）"
   }
 };

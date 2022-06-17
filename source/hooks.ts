@@ -46,10 +46,10 @@ export async function onAfterBuild(
   result: IBuildResult
 ) {
   log(options.name);
-  const { adNetwork, isPlayable } = options.packages[PACKAGE_NAME];
+  const { adNetwork, isPlayable, gzip } = options.packages[PACKAGE_NAME];
   if (isPlayable === true) {
     const mergeTool = new MergeBuilder(result.paths.dir, options.name);
-    await mergeTool.merge(adNetwork);
+    await mergeTool.merge(adNetwork, gzip);
   }
 
   //fs.readFileSync()

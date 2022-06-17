@@ -12,5 +12,9 @@ module.exports = {
   splitJs: {
     label: "Split large javascript file",
     description: "Do not use inline long javascript to reduce size of index.html"
+  },
+  gzip: {
+    label: "Compress model files",
+    description: "Compress base64 of .bin and .cconb files with Gzip"
   }
 };

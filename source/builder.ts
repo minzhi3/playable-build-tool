@@ -24,6 +24,14 @@ export const configs: Record<string, IBuildPlugin> = {
           ui: "ui-checkbox",
         },
       },*/
+      gzip: {
+        label: "i18n:playable-build-tool.gzip.label",
+        description: "i18n:playable-build-tool.gzip.description",
+        default: "false",
+        render: {
+          ui: "ui-checkbox",
+        },
+      },
       adNetwork: {
         label: "i18n:playable-build-tool.adNetwork.label",
         description: "i18n:playable-build-tool.adNetwork.description",

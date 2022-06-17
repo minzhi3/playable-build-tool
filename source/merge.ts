@@ -1,6 +1,6 @@
 import * as path from "path";
 import * as fs from "fs";
-import JSZip from "jszip";
+import JSZip, { file } from "jszip";
 import ejs from "ejs";
 import pako from "pako";
 
@@ -15,6 +15,7 @@ const base64PreList = new Map<string, string>([
   [".cconb", "data:application/octet-stream;base64,"],
   [".ttf", ""],
 ]);
+const gzipType = [".cconb", ".bin"];
 export class MergeBuilder {
   rootDest: string;
   html_path: string;
@@ -69,9 +70,9 @@ export class MergeBuilder {
     if (base64PreList.has(extName)) {
       const buffer = fs.readFileSync(filePath);
       const preName = base64PreList.get(extName);
-      if (extName === ".cconb" || extName === ".bin") gzip = true;
-      if (gzip) {
+      if (gzip && gzipType.indexOf(extName) >= 0) {
         const gzData = pako.deflate(buffer);
+        console.log(`${extName}: ${buffer.length} -> ${gzData.length}`);
         const base64zip = Buffer.from(gzData).toString("base64");
         ret = preName + base64zip;
       } else {
@@ -86,24 +87,24 @@ export class MergeBuilder {
     return ret;
   }
 
-  getResMap(jsonMap: Map<string, string>, _path: string) {
+  getResMap(jsonMap: Map<string, string>, _path: string, gzip = false) {
     const fileList = fs.readdirSync(_path, { withFileTypes: true });
     for (const file of fileList) {
       const absPath = path.resolve(_path, file.name);
       if (file.isDirectory()) {
-        this.getResMap(jsonMap, absPath);
+        this.getResMap(jsonMap, absPath, gzip);
       } else {
         let relativePath = absPath.replace(this.res_path, "/");
         if (process.platform == "win32") {
           relativePath = relativePath.replaceAll("\\", "/");
         }
-        jsonMap.set(relativePath, this.readFile(absPath));
+        jsonMap.set(relativePath, this.readFile(absPath, gzip));
       }
     }
   }
-  getResMapScript() {
+  getResMapScript(gzip = false) {
     let jsonObj = new Map<string, string>();
-    this.getResMap(jsonObj, this.res_path);
+    this.getResMap(jsonObj, this.res_path, gzip);
     const object = Object.fromEntries(jsonObj);
     console.log(object);
     const resStr = "window.resMap = " + JSON.stringify(object) + "\n";
@@ -166,7 +167,7 @@ export class MergeBuilder {
     );
   }
 
-  async merge(adNetwork: string) {
+  async merge(adNetwork: string, gzip: boolean) {
     //create folder
     if (!fs.existsSync(this.output_folder)) fs.mkdirSync(this.output_folder);
 
@@ -182,8 +183,9 @@ export class MergeBuilder {
 
     const style_str =
       "<style>\n" + this.readFile(this.style_path) + "</style>\n";
-    const pako_str =
-      "<script>\n" + this.readFile(this.pako_path) + "</script>\n";
+    const pako_str = gzip
+      ? "<script>\n" + this.readFile(this.pako_path) + "</script>\n"
+      : "";
     // system_js
     const system_js_str =
       "<script>\n" + this.readFile(this.system_js_path) + "</script>\n";
@@ -257,14 +259,13 @@ export class MergeBuilder {
       engine_content = fb_content + "\n" + engine_content;
     }
     // resmap
-    const resStr = this.getResMapScript();
+    const resStr = this.getResMapScript(gzip);
     const cc_index_str =
       "function loadCCIndex(){\n" +
       this.readFile(this.cc_index_js_path) +
       "\n}\n";
     const setting_str =
       "window._CCSettings = " + this.readFile(this.setting_path) + "\n";
-    console.log(pako_str);
     const ejsData = {
       head: {
         styleTag: style_str,
