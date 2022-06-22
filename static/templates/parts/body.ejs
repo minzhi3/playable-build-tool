@@ -1,9 +1,31 @@
+<div id="loading-zone" aria-busy="true">
+  <p>Loading...</p>
+  <div class="card">
+    <label>
+      <progress indeterminate role="progressbar" id="loading-value" value="0" max="100" aria-describedby="loading-zone"
+        tabindex="-1"></progress>
+    </label>
+  </div>
+</div>
+<script>
+  window.progress = document.getElementById("loading-value")
+  window.progress.value = 5;
+</script>
 <canvas id="GameCanvas" oncontextmenu="event.preventDefault()" tabindex="0"></canvas>
 <%- body.polyfills %>
 <%- body.systemJs %>
 <%- body.importMap %>
+<script>
+  window.progress.value = 5;
+</script>
 <%- body.resourceMap %>
+<script>
+  window.progress.value = 20;
+</script>
 <%- body.engine %>
 <%- body.downloadHook %>
 <%- body.bundle %>
 <%- body.entryPoint %>
+<script>
+  window.progress.value = 35;
+</script>

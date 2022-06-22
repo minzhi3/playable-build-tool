@@ -41,7 +41,7 @@ export class MergeBuilder {
   constructor(_rootRest: string, project_name: string) {
     this.rootDest = _rootRest;
     this.project_name = project_name;
-    this.application_js_path = path.join(this.rootDest, "application.js");
+    this.application_js_path = path.join(__dirname, "../static/application.js");
     this.index_js_path = path.join(this.rootDest, "index.js");
     this.wrapper_path = path.join(__dirname, "../static/wrapper.js");
 
@@ -196,18 +196,7 @@ export class MergeBuilder {
     let wrapper_str = this.readFile(this.wrapper_path);
 
     // entrypoint
-    let application_str =
-      "function loadApplication(){\n" +
-      this.readFile(this.application_js_path) +
-      "}\n";
-    application_str = application_str.replace(
-      "cc = engine;",
-      "cc = engine;\nhook(cc);\n"
-    );
-    application_str = application_str.replace(
-      "requestSettings();",
-      "resolve();"
-    );
+    let application_str = this.readFile(this.application_js_path);
     //for mintegral loading scene
     if (adNetwork === "mintegral") {
       application_str = application_str.replace(
