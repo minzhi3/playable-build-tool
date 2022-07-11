@@ -41,7 +41,8 @@ export const configs: Record<string, IBuildPlugin> = {
           items: [
             { label: "test", value: "test" },
             { label: "applovin", value: "applovin" },
-            { label: "facebook", value: "facebook" },
+            { label: "facebook(zip)", value: "facebook" },
+            { label: "facebook(html)", value: "facebook_html" },
             { label: "google", value: "google" },
             { label: "ironsource", value: "ironsource" },
             { label: "mintegral", value: "mintegral" },

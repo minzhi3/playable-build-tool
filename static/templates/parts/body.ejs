@@ -1,10 +1,19 @@
 <div id="loading-zone" aria-busy="true">
-  <p>Loading...</p>
-  <div class="card">
-    <label>
-      <progress indeterminate role="progressbar" id="loading-value" value="0" max="100" aria-describedby="loading-zone"
-        tabindex="-1"></progress>
-    </label>
+  <div style="position: absolute;top: 20%;left: 31%;height: 40%;right: 31%;">
+    <% if (body.loading.icon) { %>
+    <img
+      src="<%- body.loading.icon %>" alt="" width="100px">
+    <% } %>
+    <% if (body.loading.title) { %>
+    <p><%- body.loading.title %></p>
+    <% } %>
+    <p>Loading...</p>
+    <div class="card">
+      <label>
+        <progress indeterminate="" role="progressbar" id="loading-value" value="90" max="100"
+          aria-describedby="loading-zone" tabindex="-1"></progress>
+      </label>
+    </div>
   </div>
 </div>
 <script>

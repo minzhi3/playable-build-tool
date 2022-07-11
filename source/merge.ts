@@ -239,7 +239,7 @@ export class MergeBuilder {
       splitJs
     );
     //for issue in facebook audio
-    if (adNetwork === "facebook") {
+    if (adNetwork === "facebook" || adNetwork === "facebook_html") {
       const fb_content = this.generateScript(
         this.facebook_xhr_path,
         this.readFile(this.facebook_xhr_path),
@@ -255,12 +255,24 @@ export class MergeBuilder {
       "\n}\n";
     const setting_str =
       "window._CCSettings = " + this.readFile(this.setting_path) + "\n";
+    /*
+    const icon_str = this.readFile(
+      path.join(
+        this.rootDest,
+        "assets/main/native/db/db3b1613-860e-40e7-a627-548bb336aa2e.png"
+      )
+    );
+    */
     const ejsData = {
       head: {
         styleTag: style_str,
         pakoJs: pako_str,
       },
       body: {
+        loading: {
+          //title: "Dinosaur Rampage",
+          //icon: icon_str,
+        },
         systemJs: system_js_str,
         polyfills: polyfill_str,
         importMap:
@@ -276,8 +288,12 @@ export class MergeBuilder {
         entryPoint: entrypoint_str,
       },
     };
+    let ejsFile = adNetwork;
+    if (adNetwork === "facebook_html") {
+      ejsFile = "facebook";
+    }
     const content = await ejs.renderFile(
-      path.join(this.template_path, `${adNetwork}.ejs`),
+      path.join(this.template_path, `${ejsFile}.ejs`),
       ejsData,
       {}
     );
