@@ -27,6 +27,14 @@ class FBXMLHttpRequest {
   async send(body: any) {
     try {
       const response = await window.fetch(this.url);
+      /*const response = {
+        ok: true,
+        status: 200,
+        statusText: "ok",
+        blob() {
+          return new Blob();
+        },
+      };*/
       if (!response.ok) this.onerror(response.statusText);
       else {
         this._status = response.status;

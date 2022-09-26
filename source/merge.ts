@@ -167,7 +167,7 @@ export class MergeBuilder {
     );
   }
 
-  async merge(adNetwork: string, gzip: boolean) {
+  async merge(adNetwork: string, gzip: boolean, loading: boolean) {
     //create folder
     if (!fs.existsSync(this.output_folder)) fs.mkdirSync(this.output_folder);
 
@@ -227,7 +227,7 @@ export class MergeBuilder {
     let engine_str =
       "function loadCC(){\n" + this.readFile(this.engine_path) + "\n}\n";
     //for issue in facebook audio
-    if (adNetwork === "facebook") {
+    if (adNetwork === "facebook" || adNetwork === "facebook_html") {
       engine_str = engine_str.replaceAll(
         "new XMLHttpRequest",
         "new FBXMLHttpRequest"
@@ -270,7 +270,8 @@ export class MergeBuilder {
       },
       body: {
         loading: {
-          //title: "Dinosaur Rampage",
+          available: `visibility: ${loading ? "visible" : "hidden"};`,
+          //title: "Playable Ads",
           //icon: icon_str,
         },
         systemJs: system_js_str,
