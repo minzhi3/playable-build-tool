@@ -16,5 +16,9 @@ module.exports = {
   gzip: {
     label: "Compress model files",
     description: "Compress base64 of .bin and .cconb files with Gzip"
+  },
+  loading: {
+    label: "Loading screen",
+    description: "Show loading screen"
   }
 };

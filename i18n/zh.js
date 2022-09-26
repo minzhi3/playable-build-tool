@@ -16,5 +16,9 @@ module.exports = {
   gzip: {
     label: "Gzip压缩",
     description: "使用Gzip压缩模型文件（.bin和.cconb）"
+  },
+  loading: {
+    label: "Loading画面",
+    description: "游戏开始时显示加载进度"
   }
 };
