@@ -18,7 +18,11 @@ function dataURItoBlob(dataURI) {
 
 function downloadFile(url, options, onProgress, onComplete) {
   console.log(url)
-  var assetName = url.replace('assets/main', '')
+  var assetName = ""
+  if (url[0]==="a")
+    assetName = url.replace("assets","/" + window.currentBundle)
+  else
+    assetName = "/" + url
   var base64 = window.resMap[assetName]
   if (options.xhrResponseType === 'json'){
     onComplete(null, JSON.parse(base64))
@@ -71,7 +75,7 @@ function downloadDomImage(url, options, onComplete) {
   img.addEventListener('load', loadCallback);
   img.addEventListener('error', errorCallback);
 
-  var assetName = url.replace('assets/main', '')
+  var assetName = url.replace("assets","/" + window.currentBundle)
   var base64 = window.resMap[assetName]
   img.src = base64;
   return img;
@@ -114,7 +118,8 @@ function downloadScript(url, options, onComplete) {
 }
 function downloadBundle(nameOrUrl, options, onComplete) {
   console.log("bundle",nameOrUrl)
-  var config = "/config.json";
+  window.currentBundle = nameOrUrl;
+  var config = nameOrUrl + "/config.json";
   var count = 0;
   var out = null;
   var error = null;
@@ -123,7 +128,7 @@ function downloadBundle(nameOrUrl, options, onComplete) {
     out = response;
 
     if (out) {
-      out.base = "assets/main/";
+      out.base = "assets/";
     }
     if (++count === 2) {
       onComplete(error, out);

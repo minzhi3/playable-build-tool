@@ -33,12 +33,12 @@ export const configs: Record<string, IBuildPlugin> = {
         },
       },
       loading: {
-          label: "i18n:playable-build-tool.loadingBar.label",
-          description: "i18n:playable-build-tool.loadingBar.description",
-          default: "true",
-          render: {
-              ui: "ui-checkbox",
-          },
+        label: "i18n:playable-build-tool.loading.label",
+        description: "i18n:playable-build-tool.loading.description",
+        default: "true",
+        render: {
+          ui: "ui-checkbox",
+        },
       },
       adNetwork: {
         label: "i18n:playable-build-tool.adNetwork.label",

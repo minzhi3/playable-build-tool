@@ -25,6 +25,7 @@ export class MergeBuilder {
   application_js_path: string;
   index_js_path: string;
   cc_index_js_path: string;
+  cc_index_internal_js_path: string;
   engine_path: string;
   bundle_path: string;
   hook_path: string;
@@ -41,20 +42,21 @@ export class MergeBuilder {
   constructor(_rootRest: string, project_name: string) {
     this.rootDest = _rootRest;
     this.project_name = project_name;
-    this.application_js_path = path.join(__dirname, "../static/application.js");
+    this.application_js_path = path.join(__dirname, "../static/3.6.0/application.js");
     this.index_js_path = path.join(this.rootDest, "index.js");
     this.wrapper_path = path.join(__dirname, "../static/wrapper.js");
 
-    this.html_path = path.join(__dirname, "../static/index.html");
+    this.html_path = path.join(__dirname, "../static/3.6.0/index.html");
     this.output_folder = path.join(this.rootDest, "playable");
 
     this.cc_index_js_path = path.join(this.rootDest, "assets/main/index.js");
+    this.cc_index_internal_js_path = path.join(this.rootDest, "assets/internal/index.js");
     this.engine_path = path.join(this.rootDest, "cocos-js/cc.js");
     this.bundle_path = path.join(this.rootDest, "src/chunks/bundle.js");
     this.hook_path = path.join(__dirname, "../static/download-hook.js");
     this.style_path = path.join(this.rootDest, "style.css");
 
-    this.res_path = path.join(this.rootDest, "assets/main/");
+    this.res_path = path.join(this.rootDest, "assets/");
     this.system_js_path = path.join(this.rootDest, "src/system.bundle.js");
     this.polyfill_path = path.join(this.rootDest, "src/polyfills.bundle.js");
 
@@ -65,6 +67,7 @@ export class MergeBuilder {
   }
   readFile(filePath: string, gzip = false) {
     if (!filePath) return "";
+    if (!fs.existsSync(filePath)) return "";
     const extName = path.extname(filePath);
     let ret: string;
     if (base64PreList.has(extName)) {
@@ -251,6 +254,8 @@ export class MergeBuilder {
     const resStr = this.getResMapScript(gzip);
     const cc_index_str =
       "function loadCCIndex(){\n" +
+      this.readFile(this.cc_index_internal_js_path) + 
+      "\n" +
       this.readFile(this.cc_index_js_path) +
       "\n}\n";
     const setting_str =
