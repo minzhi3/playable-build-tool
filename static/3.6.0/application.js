@@ -1,3 +1,4 @@
+var oldSettingInit
 function loadApplication() {
   System.register([], function (_export, _context) {
     "use strict";
@@ -17,7 +18,7 @@ function loadApplication() {
           function Application() {
             _classCallCheck(this, Application);
 
-            this.settingsPath = 'src/settings.json';
+            this.settingsPath = '';
             this.showFPS = true;
           }
 
@@ -33,7 +34,8 @@ function loadApplication() {
           }, {
             key: "onPostInitBase",
             value: function onPostInitBase() {// cc.settings.overrideSettings('assets', 'server', '');
-              // do custom logic
+              oldSettingInit = cc.settings.init
+              cc.settings._settings = window._CCSettings
             }
           }, {
             key: "onPostSystemInit",

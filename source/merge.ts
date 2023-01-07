@@ -42,7 +42,10 @@ export class MergeBuilder {
   constructor(_rootRest: string, project_name: string) {
     this.rootDest = _rootRest;
     this.project_name = project_name;
-    this.application_js_path = path.join(__dirname, "../static/3.6.0/application.js");
+    this.application_js_path = path.join(
+      __dirname,
+      "../static/3.6.0/application.js"
+    );
     this.index_js_path = path.join(this.rootDest, "index.js");
     this.wrapper_path = path.join(__dirname, "../static/wrapper.js");
 
@@ -50,7 +53,10 @@ export class MergeBuilder {
     this.output_folder = path.join(this.rootDest, "playable");
 
     this.cc_index_js_path = path.join(this.rootDest, "assets/main/index.js");
-    this.cc_index_internal_js_path = path.join(this.rootDest, "assets/internal/index.js");
+    this.cc_index_internal_js_path = path.join(
+      this.rootDest,
+      "assets/internal/index.js"
+    );
     this.engine_path = path.join(this.rootDest, "cocos-js/cc.js");
     this.bundle_path = path.join(this.rootDest, "src/chunks/bundle.js");
     this.hook_path = path.join(__dirname, "../static/download-hook.js");
@@ -233,7 +239,7 @@ export class MergeBuilder {
     if (adNetwork === "facebook" || adNetwork === "facebook_html") {
       engine_str = engine_str.replaceAll(
         "new XMLHttpRequest",
-        "new FBXMLHttpRequest"
+        "new XMLFBHttpRequest"
       );
     }
     let engine_content = this.generateScript(
@@ -254,10 +260,11 @@ export class MergeBuilder {
     const resStr = this.getResMapScript(gzip);
     const cc_index_str =
       "function loadCCIndex(){\n" +
-      this.readFile(this.cc_index_internal_js_path) + 
+      this.readFile(this.cc_index_internal_js_path) +
       "\n" +
       this.readFile(this.cc_index_js_path) +
-      "\n}\n";
+      "\n" +
+      "}\n";
     const setting_str =
       "window._CCSettings = " + this.readFile(this.setting_path) + "\n";
     /*

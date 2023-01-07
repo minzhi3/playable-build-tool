@@ -1,4 +1,4 @@
-class FBXMLHttpRequest {
+class XMLFBHttpRequest {
   public responseType: string;
   public withCredentials: boolean;
   public onload: Function;
