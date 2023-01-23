@@ -62,10 +62,7 @@ export class MergeBuilder {
     );
     this.engine_path = path.join(this.rootDest, "cocos-js/cc.js");
     this.bundle_path = path.join(this.rootDest, "src/chunks/bundle.js");
-    this.hook_path = path.join(
-      __dirname,
-      "../static/" + version + "/download-hook.js"
-    );
+    this.hook_path = path.join(__dirname, "../static/download-hook.js");
     this.style_path = path.join(this.rootDest, "style.css");
 
     this.res_path = path.join(this.rootDest, "assets/");
