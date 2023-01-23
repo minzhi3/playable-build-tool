@@ -45,11 +45,25 @@ export async function onAfterBuild(
   options: ITaskOptions,
   result: IBuildResult
 ) {
-  log(options.name);
+  const versionArray = Editor.App.version.split(".");
+  const mainVersion = `${versionArray[0]}.${versionArray[1]}`;
+  const availableVersion = ["3.2", "3.3", "3.4", "3.5", "3.6"];
+  if (availableVersion.indexOf(mainVersion) < 0) {
+    console.error(
+      `Unsupported cocos version ${Editor.App.version}.\nPlease use cocos creator between 3.2 ~ 3.6.);`
+    );
+    return;
+  }
+  let fileType = "3.6";
+  if (Number(versionArray[1]) <= 5) fileType = "3.5";
   const { adNetwork, isPlayable, gzip, loading } =
     options.packages[PACKAGE_NAME];
   if (isPlayable === true) {
-    const mergeTool = new MergeBuilder(result.paths.dir, options.name);
+    const mergeTool = new MergeBuilder(
+      result.paths.dir,
+      options.name,
+      fileType
+    );
     await mergeTool.merge(adNetwork, gzip, loading);
   }
 

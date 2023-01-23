@@ -57,6 +57,7 @@ function loadApplication() {
                 }
               }).then(function () {
                 window.progress.value = 50;
+                document.getElementById("loading-zone").style.display = "none";
                 return cc.game.run();
               });
             }

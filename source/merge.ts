@@ -39,17 +39,20 @@ export class MergeBuilder {
 
   applicationJsPath: string;
   template_path: string;
-  constructor(_rootRest: string, project_name: string) {
+  constructor(_rootRest: string, project_name: string, version: string) {
     this.rootDest = _rootRest;
     this.project_name = project_name;
     this.application_js_path = path.join(
       __dirname,
-      "../static/3.6.0/application.js"
+      "../static/" + version + "/application.js"
     );
     this.index_js_path = path.join(this.rootDest, "index.js");
     this.wrapper_path = path.join(__dirname, "../static/wrapper.js");
 
-    this.html_path = path.join(__dirname, "../static/3.6.0/index.html");
+    this.html_path = path.join(
+      __dirname,
+      "../static/" + version + "/index.html"
+    );
     this.output_folder = path.join(this.rootDest, "playable");
 
     this.cc_index_js_path = path.join(this.rootDest, "assets/main/index.js");
@@ -59,7 +62,10 @@ export class MergeBuilder {
     );
     this.engine_path = path.join(this.rootDest, "cocos-js/cc.js");
     this.bundle_path = path.join(this.rootDest, "src/chunks/bundle.js");
-    this.hook_path = path.join(__dirname, "../static/download-hook.js");
+    this.hook_path = path.join(
+      __dirname,
+      "../static/" + version + "/download-hook.js"
+    );
     this.style_path = path.join(this.rootDest, "style.css");
 
     this.res_path = path.join(this.rootDest, "assets/");
