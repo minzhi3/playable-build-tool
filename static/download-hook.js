@@ -147,7 +147,7 @@ var oldHook
 function downloadAudio(url, options, onComplete) {
   var ext
   if (url) {
-    var path = url.substring(11)
+    var path = url.replace("assets","/" + window.currentBundle)
     ext = url.slice(-4)
     url = window.resMap[path]
   }
