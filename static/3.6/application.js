@@ -57,8 +57,17 @@ function loadApplication() {
                 }
               }).then(function () {
                 window.progress.value = 50;
-                document.getElementById("loading-zone").style.display = "none";
-                return cc.game.run();
+                var launchScene = window._CCSettings.launch.launchScene
+                return cc.director.preloadScene(launchScene, function (count) {
+                  if (window.progress) {
+                    window.progress.value = 50 + count / 5
+                  }
+                }, function () {
+                  return cc.game.run(function (){
+                    window.progress.value = 100;
+                    document.getElementById("loading-zone").style.display = "none";
+                  });
+                })
               });
             }
           }]);
