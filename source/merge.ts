@@ -132,11 +132,11 @@ export class MergeBuilder {
       return `<script>\n` + content + `</script>\n`;
     } else {
       const formatPathString = path.basename(filePath);
-      const assetsPath = path.join(this.output_folder, "merge-assets");
+      const assetsPath = path.join(this.output_folder, "merge_assets");
       const exists = fs.existsSync(assetsPath);
       if (!exists) fs.mkdirSync(assetsPath);
       fs.writeFileSync(path.join(assetsPath, formatPathString), content);
-      return `<script src="merge-assets/${formatPathString}"> </script>\n`;
+      return `<script src="merge_assets/${formatPathString}"> </script>\n`;
     }
   }
 
