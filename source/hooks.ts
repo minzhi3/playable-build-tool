@@ -47,7 +47,7 @@ export async function onAfterBuild(
 ) {
   const versionArray = Editor.App.version.split(".");
   const mainVersion = `${versionArray[0]}.${versionArray[1]}`;
-  const availableVersion = ["3.2", "3.3", "3.4", "3.5", "3.6"];
+  const availableVersion = ["3.2", "3.3", "3.4", "3.5", "3.6", "3.7", "3.8"];
   if (availableVersion.indexOf(mainVersion) < 0) {
     console.error(
       `Unsupported cocos version ${Editor.App.version}.\nPlease use cocos creator between 3.2 ~ 3.6.);`

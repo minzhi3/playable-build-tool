@@ -52,7 +52,7 @@ export const configs: Record<string, IBuildPlugin> = {
             { label: "facebook(zip)", value: "facebook" },
             { label: "facebook(html)", value: "facebook_html" },
             { label: "google", value: "google" },
-            { label: "ironsource", value: "ironsource" },
+            { label: "ironsource(dapi)", value: "ironsource" },
             { label: "mintegral", value: "mintegral" },
             { label: "unity", value: "unity" },
           ],

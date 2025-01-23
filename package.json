@@ -2,7 +2,7 @@
     "name": "playable-build-tool",
     "title": "i18n:playable-build-tool.title",
     "package_version": 2,
-    "version": "1.4.0",
+    "version": "1.4.1",
     "author": "minzhi",
     "description": "i18n:playable-build-tool.description",
     "contributions": {
@@ -22,6 +22,6 @@
         "@types/ejs": "^3.1.0",
         "@types/pako": "^2.0.0",
         "electron": "^17.0.1",
-        "typescript": "^4.5.5"
+        "typescript": "^4.9.5"
     }
 }
