@@ -54,8 +54,9 @@ export async function onAfterBuild(
     );
     return;
   }
-  let fileType = "3.6";
+  let fileType = "3.8";
   if (Number(versionArray[1]) <= 5) fileType = "3.5";
+  else if (Number(versionArray[1]) <= 6) fileType = "3.6";
   const { adNetwork, isPlayable, gzip, loading } =
     options.packages[PACKAGE_NAME];
   if (isPlayable === true) {
@@ -64,7 +65,11 @@ export async function onAfterBuild(
       options.name,
       fileType
     );
-    await mergeTool.merge(adNetwork, gzip, loading);
+    if (fileType === "3.8") {
+      await mergeTool.merge(adNetwork, gzip, loading, fileType);
+    } else {
+      await mergeTool.merge_36(adNetwork, gzip, loading);
+    }
   }
 
   //fs.readFileSync()

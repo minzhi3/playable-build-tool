@@ -2,14 +2,15 @@
     "name": "playable-build-tool",
     "title": "i18n:playable-build-tool.title",
     "package_version": 2,
-    "version": "1.4.1",
+    "version": "1.5.0",
     "author": "minzhi",
     "description": "i18n:playable-build-tool.description",
     "contributions": {
         "builder": "./dist/builder.js"
     },
     "scripts": {
-        "build": "tsc"
+        "build": "tsc",
+        "test": "node dist/run.js"
     },
     "dependencies": {
         "@types/fs-extra": "^5.0.4",
