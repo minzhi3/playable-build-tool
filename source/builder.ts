@@ -1,8 +1,12 @@
 import { IBuildPlugin } from "../@types";
 
-export function load() {}
+export function load() {
+  console.log("playable-build tool loaded");
+}
 
-export function unload() {}
+export function unload() {
+  console.log("playable-build tool unloaded");
+}
 
 export const configs: Record<string, IBuildPlugin> = {
   "web-mobile": {
