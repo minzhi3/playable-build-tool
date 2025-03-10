@@ -139,14 +139,19 @@ export class MergeBuilder {
       }
     }
   }
-  getWasmMap(wasmMap: Map<string, string>, _path: string, gzip = false) {
+  getWasmMap(
+    wasmMap: Map<string, string>,
+    _path: string,
+    gzip = false,
+    splitWasm = false
+  ) {
     const fileList = fs.readdirSync(_path, {
       withFileTypes: true,
     });
     for (const file of fileList) {
       const absPath = path.resolve(_path, file.name);
       if (file.isDirectory()) {
-        this.getWasmMap(wasmMap, absPath, gzip);
+        this.getWasmMap(wasmMap, absPath, gzip, splitWasm);
       } else {
         let ext = path.extname(absPath);
         if (ext !== ".wasm") continue;
@@ -154,11 +159,18 @@ export class MergeBuilder {
         if (process.platform == "win32") {
           relativePath = relativePath.replaceAll("\\", "/");
         }
-        wasmMap.set(relativePath, this.readFile(absPath, gzip));
+        let fileName = path.basename(absPath);
+        if (splitWasm) {
+          fs.copyFileSync(
+            absPath,
+            path.join(this.output_folder, "merge-assets", fileName)
+          );
+        } else wasmMap.set(relativePath, this.readFile(absPath, gzip));
       }
     }
   }
-  getResMapScript(gzip = false) {
+  getResMapScript(gzip = false, splitWasm = false) {
+    //res map
     let jsonObj = new Map<string, string>();
     this.getResMap(jsonObj, this.res_path, gzip);
     const object = Object.fromEntries(jsonObj);
@@ -167,7 +179,7 @@ export class MergeBuilder {
 
     //engine wasm
     let wasmMap = new Map<string, string>();
-    this.getWasmMap(wasmMap, this.engine_path, gzip);
+    this.getWasmMap(wasmMap, this.engine_path, gzip, splitWasm);
     const wasmObject = Object.fromEntries(wasmMap);
     const wasmStr = "window.wasmMap = " + JSON.stringify(wasmObject) + "\n";
     return wasmStr + resStr;
@@ -452,6 +464,10 @@ export class MergeBuilder {
     ) {
       splitJs = true;
     }
+    let splitWasm = false;
+    if (adNetwork === "facebook") {
+      splitWasm = true;
+    }
 
     const style_str =
       "<style>\n" + this.readFile(this.style_path) + "</style>\n";
@@ -534,7 +550,7 @@ export class MergeBuilder {
       engine_content = fb_content + "\n" + engine_content;
     }
     // resmap
-    const resStr = this.getResMapScript(gzip);
+    const resStr = this.getResMapScript(gzip, splitWasm);
     const cc_index_str =
       "function loadCCIndex(){\n" +
       this.readFile(this.cc_index_internal_js_path) +
