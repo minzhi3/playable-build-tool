@@ -47,7 +47,6 @@ export class MergeBuilder {
   pako_path: string;
   hook_url_path: string;
 
-  applicationJsPath: string;
   template_path: string;
   constructor(_rootRest: string, project_name: string, version: string) {
     this.rootDest = _rootRest;
@@ -98,7 +97,6 @@ export class MergeBuilder {
     const extName = path.extname(filePath);
     let ret: string;
     if (base64PreList.has(extName)) {
-      console.log(filePath);
       const buffer = fs.readFileSync(filePath);
       const preName = base64PreList.get(extName);
       if (gzip && gzipType.indexOf(extName) >= 0) {
@@ -110,9 +108,12 @@ export class MergeBuilder {
         const base64 = Buffer.from(buffer).toString("base64");
         ret = preName + base64;
       }
+      console.log(`read binary file: ${filePath}`);
     } else if (extName === "") {
       ret = "";
+      console.log(`ignore file: ${filePath}`);
     } else {
+      console.log(`read text file: ${filePath}`);
       ret = fs.readFileSync(filePath, "utf8");
     }
     return ret;
@@ -122,13 +123,17 @@ export class MergeBuilder {
     const fileList = fs.readdirSync(_path, { withFileTypes: true });
     for (const file of fileList) {
       const absPath = path.resolve(_path, file.name);
+      const extName = path.extname(absPath);
       if (file.isDirectory()) {
         this.getResMap(jsonMap, absPath, gzip);
       } else {
         let relativePath = path.relative(this.res_path, absPath);
-        console.log(relativePath);
         if (process.platform == "win32") {
           relativePath = relativePath.replaceAll("\\", "/");
+        }
+        if (extName === ".js") {
+          console.log(`ignore js file: ${absPath}`);
+          continue;
         }
         jsonMap.set(relativePath, this.readFile(absPath, gzip));
       }
@@ -431,6 +436,7 @@ export class MergeBuilder {
   ) {
     //create folder
     console.log(fs.realpathSync("."));
+
     if (!fs.existsSync(this.output_folder)) fs.mkdirSync(this.output_folder);
     else {
       fs.rmSync(this.output_folder, { recursive: true });
