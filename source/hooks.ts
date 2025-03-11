@@ -65,11 +65,7 @@ export async function onAfterBuild(
       options.name,
       fileType
     );
-    if (fileType === "3.8") {
-      await mergeTool.merge(adNetwork, gzip, loading, fileType);
-    } else {
-      await mergeTool.merge_36(adNetwork, gzip, loading);
-    }
+    await mergeTool.merge(adNetwork, gzip, loading, fileType);
   }
 
   //fs.readFileSync()

@@ -15,7 +15,7 @@ module.exports = {
   },
   gzip: {
     label: "Gzip压缩",
-    description: "使用Gzip压缩模型文件（.bin和.cconb）"
+    description: "使用Gzip压缩模型文件（bin、cconb和json）"
   },
   loading: {
     label: "Loading画面",
