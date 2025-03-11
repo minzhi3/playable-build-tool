@@ -3,55 +3,52 @@
 
 <head>
   <%- include("parts/head", {head}) %>
-  <script>
-    function getScript(e, i) { var n = document.createElement("script"); n.type = "text/javascript", n.async = !0, i && (n.onload = i), n.src = e, document.head.appendChild(n) } function parseMessage(e) { var i = e.data, n = i.indexOf(DOLLAR_PREFIX + RECEIVE_MSG_PREFIX); if (-1 !== n) { var t = i.slice(n + 2); return getMessageParams(t) } return {} } function getMessageParams(e) { var i, n = [], t = e.split("/"), a = t.length; if (-1 === e.indexOf(RECEIVE_MSG_PREFIX)) { if (a >= 2 && a % 2 === 0) for (i = 0; a > i; i += 2)n[t[i]] = t.length < i + 1 ? null : decodeURIComponent(t[i + 1]) } else { var o = e.split(RECEIVE_MSG_PREFIX); void 0 !== o[1] && (n = JSON && JSON.parse(o[1])) } return n } function getDapi(e) { var i = parseMessage(e); if (!i || i.name === GET_DAPI_URL_MSG_NAME) { var n = i.data; getScript(n, onDapiReceived) } } function invokeDapiListeners() { for (var e in dapiEventsPool) dapiEventsPool.hasOwnProperty(e) && dapi.addEventListener(e, dapiEventsPool[e]) } function onDapiReceived() { dapi = window.dapi, window.removeEventListener("message", getDapi), invokeDapiListeners() } function init() { window.dapi.isDemoDapi && (window.parent.postMessage(DOLLAR_PREFIX + SEND_MSG_PREFIX + JSON.stringify({ state: "getDapiUrl" }), "*"), window.addEventListener("message", getDapi, !1)) } var DOLLAR_PREFIX = "$$", RECEIVE_MSG_PREFIX = "DAPI_SERVICE:", SEND_MSG_PREFIX = "DAPI_AD:", GET_DAPI_URL_MSG_NAME = "connection.getDapiUrl", dapiEventsPool = {}, dapi = window.dapi || { isReady: function () { return !1 }, addEventListener: function (e, i) { dapiEventsPool[e] = i }, removeEventListener: function (e) { delete dapiEventsPool[e] }, isDemoDapi: !0 }; init();
-  </script>
+  <script src="mraid.js"></script>
 </head>
 
 <body>
   <%- include("parts/body", {body})%>
   <script>
+    window.addEventListener("DOMContentLoaded", start);
     window.onload = function () {
-      (dapi.isReady()) ? onReadyCallback() : dapi.addEventListener("ready", onReadyCallback);
+      if (mraid.getState() === "loading") {
+        mraid.addEventListener("ready", onReadyCallback);
+      } else {
+        onReadyCallback();
+      }
       //here you can put other code that not related to dapi logic
     };
 
     function onReadyCallback() {
       //no need to listen to this event anymore
-      dapi.removeEventListener("ready", onReadyCallback);
-      var isAudioEnabled = !!dapi.getAudioVolume();
+      mraid.removeEventListener("ready", onReadyCallback);
+      var isAudioEnabled = mraid.getAudioVolume();
+      start()
 
-      if (dapi.isViewable()) {
-        adVisibleCallback({ isViewable: true });
-      }
-
-      dapi.addEventListener("viewableChange", adVisibleCallback);
-      dapi.addEventListener("adResized", adResizeCallback);
-      dapi.addEventListener("audioVolumeChange", audioVolumeChangeCallback);
+      mraid.addEventListener("exposureChange", exposureChangeCallback);
+      mraid.addEventListener("audioVolumeChange", audioVolumeChangeCallback);
     }
     var screenSize;
-    function adVisibleCallback(event) {
-      console.log("isViewable " + event.isViewable);
-      if (event.isViewable) {
-        screenSize = dapi.getScreenSize();
-        start()
-      } else {
-        //PAUSE the ad and MUTE sounds
+    var isPaused = true;
+    function exposureChangeCallback(event) {
+      console.log("isViewable " + event);
+      if (event.exposedPercentage > 0) {
+        if (isPaused){
+          isPaused = false
+        }
       }
-    }
-
-    function adResizeCallback(event) {
-      screenSize = event;
+      screenSize = event.visibleRectangle;
       console.log("ad was resized width " + event.width + " height " + event.height);
     }
 
     //When user clicks on the download button - use openStoreUrl function
     function userClickedDownloadButton(event) {
-      dapi.openStoreUrl();
+      mraid.openStoreUrl();
     }
 
-    function audioVolumeChangeCallback(volume) {
-      let isAudioEnabled = !!volume;
+    function audioVolumeChangeCallback(event) {
+      let isAudioEnabled = !!event;
+      console.log(event)
       if (isAudioEnabled) {
         //START or turn on the sound
       } else {

@@ -1,11 +1,11 @@
 import { IBuildPlugin } from "../@types";
 
 export function load() {
-  console.log("playable-build tool loaded");
+  console.log("playable-build-tool loaded");
 }
 
 export function unload() {
-  console.log("playable-build tool unloaded");
+  console.log("playable-build-tool unloaded");
 }
 
 export const configs: Record<string, IBuildPlugin> = {
@@ -56,7 +56,7 @@ export const configs: Record<string, IBuildPlugin> = {
             { label: "facebook(zip)", value: "facebook" },
             { label: "facebook(html)", value: "facebook_html" },
             { label: "google", value: "google" },
-            { label: "ironsource(dapi)", value: "ironsource" },
+            { label: "ironsource(mraid)", value: "ironsource" },
             { label: "mintegral", value: "mintegral" },
             { label: "unity", value: "unity" },
           ],
