@@ -114,7 +114,17 @@ export class MergeBuilder {
       console.log(`ignore file: ${filePath}`);
     } else {
       console.log(`read text file: ${filePath}`);
-      ret = fs.readFileSync(filePath, "utf8");
+
+      if (gzip && extName === ".json" && filePath !== this.setting_path) {
+        const buffer = fs.readFileSync(filePath);
+        const gzData = pako.deflate(buffer);
+        console.log(`${extName}: ${buffer.length} -> ${gzData.length}`);
+        const base64 = Buffer.from(gzData).toString("base64");
+        const preName = base64PreList.get(".bin");
+        ret = preName + base64;
+      } else {
+        ret = fs.readFileSync(filePath, "utf8");
+      }
     }
     return ret;
   }

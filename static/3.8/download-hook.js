@@ -25,8 +25,16 @@ function downloadFile(url, options, onProgress, onComplete) {
     assetName = url
   console.log(assetName)
   var base64 = window.resMap[assetName]
-  if (options.xhrResponseType === 'json'){
-    onComplete(null, JSON.parse(base64))
+  if (options.xhrResponseType === 'json') {
+    if (window.isZip) {
+      var blob = dataURItoBlob(base64)
+      blob.arrayBuffer().then(result => {
+        var uncompressed = pako.inflate(result)
+        var text = new TextDecoder().decode(uncompressed)
+        onComplete(null, JSON.parse(text))
+      })
+    } else
+      onComplete(null, JSON.parse(base64))
     return
   }
   if (options.xhrResponseType === 'text'){
