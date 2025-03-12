@@ -2,7 +2,7 @@
     "name": "playable-build-tool",
     "title": "i18n:playable-build-tool.title",
     "package_version": 2,
-    "version": "1.5.0",
+    "version": "1.5.1",
     "author": "minzhi",
     "editor": "3.2.2 - 3.8.4",
     "description": "i18n:playable-build-tool.description",
@@ -11,7 +11,7 @@
     },
     "scripts": {
         "build": "tsc",
-        "test": "node dist/run.js"
+        "test": "NODE_ENV=development node dist/run.js"
     },
     "dependencies": {
         "@types/fs-extra": "^5.0.4",

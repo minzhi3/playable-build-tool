@@ -221,7 +221,8 @@ export class MergeBuilder {
 
       return arrayOfFiles;
     };
-    const fileList = getAllFiles(outputPath);
+    const fileList = getAllFiles(path.join(outputPath, "merge-assets"));
+    fileList.push(path.join(outputPath, "index.html"));
     fileList.forEach((filePath) => {
       const content = fs.readFileSync(filePath);
       const relativePath = path.relative(this.output_folder, filePath);
@@ -278,10 +279,12 @@ export class MergeBuilder {
         loadFunc.push(`load${funcName}`);
         engineStr += `function load${funcName}(){\n${content}}\n\n`;
       }
-      const enginePath = path.join(this.output_folder, "cocos-js");
-      const exists = fs.existsSync(enginePath);
-      if (!exists) fs.mkdirSync(enginePath);
-      fs.writeFileSync(path.join(enginePath, formatPathString), content);
+      if (process.env.NODE_ENV === "development") {
+        const enginePath = path.join(this.output_folder, "engine-map-debug");
+        const exists = fs.existsSync(enginePath);
+        if (!exists) fs.mkdirSync(enginePath);
+        fs.writeFileSync(path.join(enginePath, formatPathString), content);
+      }
     }
     let loadFuncStr = "window.jsList = " + JSON.stringify(jsList) + "\n";
     loadFuncStr +=

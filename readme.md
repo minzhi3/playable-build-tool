@@ -2,6 +2,8 @@
 
 Build extension for HTML5 playable ads for Cocos Creator.
 
+[Cocos Store](https://store.cocos.com/app/detail/3754)
+
 ## Usage
 
 - Move all files to extension folder, run npm install and build.
