@@ -2,9 +2,9 @@
     "name": "playable-build-tool",
     "title": "i18n:playable-build-tool.title",
     "package_version": 2,
-    "version": "1.5.1",
+    "version": "1.5.3",
     "author": "minzhi",
-    "editor": "3.2.2 - 3.8.4",
+    "editor": "3.2.2 - 3.8.8",
     "description": "i18n:playable-build-tool.description",
     "contributions": {
         "builder": "./dist/builder.js"

@@ -2,17 +2,20 @@ import { IBuildTaskOption } from "../@types";
 import { IBuildResult } from "../@types";
 import { MergeBuilder } from "./merge";
 
+type BooleanOption = boolean | "true" | "false";
+
 interface IOptions {
-  commonTest1: number;
-  commonTest2: "opt1" | "opt2";
-  webTestOption: boolean;
+  isPlayable?: BooleanOption;
+  gzip?: BooleanOption;
+  loading?: BooleanOption;
+  adNetwork?: string;
 }
 
 const PACKAGE_NAME = "playable-build-tool";
 
 interface ITaskOptions extends IBuildTaskOption {
   packages: {
-    "cocos-plugin-template": IOptions;
+    [PACKAGE_NAME]: IOptions;
   };
 }
 
@@ -23,6 +26,12 @@ function log(...arg: any[]) {
 let allAssets = [];
 
 export const throwError = true;
+
+function toBooleanOption(value: BooleanOption | undefined, defaultValue = false) {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "string") return value === "true";
+  return defaultValue;
+}
 
 export async function load() {
   console.log(`[${PACKAGE_NAME}] Load cocos plugin example in builder.`);
@@ -57,9 +66,12 @@ export async function onAfterBuild(
   let fileType = "3.8";
   if (Number(versionArray[1]) <= 5) fileType = "3.5";
   else if (Number(versionArray[1]) <= 6) fileType = "3.6";
-  const { adNetwork, isPlayable, gzip, loading } =
-    options.packages[PACKAGE_NAME];
-  if (isPlayable === true) {
+  const packageOptions = options.packages[PACKAGE_NAME] || {};
+  const adNetwork = packageOptions.adNetwork || "test";
+  const isPlayable = toBooleanOption(packageOptions.isPlayable);
+  const gzip = toBooleanOption(packageOptions.gzip);
+  const loading = toBooleanOption(packageOptions.loading, true);
+  if (isPlayable) {
     const mergeTool = new MergeBuilder(
       result.paths.dir,
       options.name,

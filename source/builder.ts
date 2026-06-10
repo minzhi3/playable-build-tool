@@ -15,7 +15,7 @@ export const configs: Record<string, IBuildPlugin> = {
       isPlayable: {
         label: "i18n:playable-build-tool.isPlayable.label",
         description: "i18n:playable-build-tool.isPlayable.description",
-        default: "false",
+        default: false,
         render: {
           ui: "ui-checkbox",
         },
@@ -31,7 +31,7 @@ export const configs: Record<string, IBuildPlugin> = {
       gzip: {
         label: "i18n:playable-build-tool.gzip.label",
         description: "i18n:playable-build-tool.gzip.description",
-        default: "false",
+        default: false,
         render: {
           ui: "ui-checkbox",
         },
@@ -39,7 +39,7 @@ export const configs: Record<string, IBuildPlugin> = {
       loading: {
         label: "i18n:playable-build-tool.loading.label",
         description: "i18n:playable-build-tool.loading.description",
-        default: "true",
+        default: true,
         render: {
           ui: "ui-checkbox",
         },
